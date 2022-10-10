@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="root">
+        
+    </div>
+    <!-- create dom element using javascript -->
+    <!-- Imperative DOM programming -->
+    <script>
+        function createElement(){
+          const Heading = document.createElement('h1')
+          //setting attributes for h1
+          Heading.innerHTML = 'Hello Vue'
+          Heading.style.color = 'red'
+          Heading.style.backgroundColor = 'yellow'
+          //attach this element in the existing
+          document.getElementById('root').appendChild(Heading)
+        }
+        createElement()
+    </script>
+</body>
+</html>
