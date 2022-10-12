@@ -1,5 +1,8 @@
-<script setup>
+<script>
 import Hello from "./components/greeter/Hello.vue";
+export default {
+    components: { Hello }
+}
 </script>
 <template>
     <div>

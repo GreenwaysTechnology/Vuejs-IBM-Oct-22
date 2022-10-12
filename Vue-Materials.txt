@@ -1260,6 +1260,154 @@ With setup attribute:
 				----------------------------------------------------
 				|                                       |
 	      	with setup function                           with setup attribute	
+.....................................................................................
+				How to create components
+....................................................................................
+
+How to structure a Large scale vue.js app
+
+Default strcture
+
+src
+  |
+  components
+    |
+    User 
+    Product
+    Comments
+    Payment
+
+Standard Structure of apps would be domain model
+
+src
+  |
+  components
+    |
+    User 
+      Userlist.vue
+      UserDetails.vue
+      User.vue
+   Product	
+      ProductList.vue
+      ProductDetails.vue
+      Product.vue
+   stores
+   layouts
+   plugins
+   directives
+   helpers/utils
+....................................................................................
+			Component Composition 
+
+Organization of Components in hierachical order(tree) pattern
+
+<div id="root">
+    <App>
+	<Hello></Hello>
+    </App>
+</div>
+
+eg:
+
+Component with "Options API"
+ 
+In this pattern, component must be registered inside script
+using component key
+
+src/components/greeter/Hello.vue
+<script>
+</script>
+<template>
+    <h2>Hello</h2>
+</template>
+<style>
+</style>
+
+src/components/greeter/App.vue
+<script>
+import Hello from "./components/greeter/Hello.vue";
+
+export default {
+    components: { Hello }
+}
+</script>
+<template>
+    <div>
+        <h1>App</h1>
+        <Hello></Hello>
+    </div>
+</template>
+<style>
+
+</style>
+..................................................................................
+Component Registration with composition pattern with setup function:
+......................................................................
+<script>
+import Hello from "./components/greeter/Hello.vue";
+export default {
+    components: { Hello },
+    setup() {
+    }
+}
+</script>
+<template>
+    <div>
+        <h1>App</h1>
+        <Hello></Hello>
+    </div>
+</template>
+<style>
+
+</style>
+.................................................................................	Component Registration with composition pattern with setup attribute:
+......................................................................
+<script setup>
+import Hello from "./components/greeter/Hello.vue";
+</script>
+<template>
+    <div>
+        <h1>App</h1>
+        <Hello></Hello>
+    </div>
+</template>
+<style>
+
+</style>	   
+....................................................................................
+
+Assigment-1:
+............
+Create Layout Components
+
+1.header
+   |
+   Logo
+   SearchPanel
+   LoginPanel
+2.main
+   |
+   three sections
+    -Vue features
+3.Footer
+   |
+   Sponors
+   copyright
+
+You have to try
+
+1.Options api
+2.Compositions api with imperative (setup fun) and declarative Patterns (setup attr)
+
+
+
+
+
+
+
+
+
+
 
 
 
