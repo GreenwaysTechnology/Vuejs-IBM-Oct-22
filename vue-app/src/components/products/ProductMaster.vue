@@ -12,8 +12,6 @@ const intTitle = 100
     <ProductDetails></ProductDetails>
     <ProductDetails :title="title"></ProductDetails>
     <ProductDetails :title="intTitle"></ProductDetails>
-
-
 </template>
 
 <style>

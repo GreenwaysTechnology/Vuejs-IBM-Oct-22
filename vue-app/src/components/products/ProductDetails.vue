@@ -6,6 +6,8 @@ const props = defineProps({
         default: 'Default Props'
     }
 })
+//update property - props are read only
+props.title = "something"
 </script>
 <template>
     <div>
