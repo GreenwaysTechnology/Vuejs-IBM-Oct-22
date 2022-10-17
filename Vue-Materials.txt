@@ -3321,7 +3321,7 @@ const tmpMovie = reactive(movie)
     <div>
         <ul>
             <li v-for="movie in tmpMovie">
-                  {{movie}}
+                  {{movies}}
             </li>
         </ul>
 
@@ -3376,6 +3376,244 @@ Here you have to create a separate Address Component,geo component, from the use
     <Address>
      <Geo>
  </User>
+.....................................................................................
+				Array Mutations
+.....................................................................................
+
+Push,remove,update array elements
+
+<script setup>
+import { reactive } from 'vue';
+const todos = reactive([])
+//listener
+const addItem = () => {
+    todos.push({ id: Math.random(), text: 'Learn Vue!' })
+}
+</script>
+<template>
+
+    <ul>
+        <li v-for="todo in todos">
+            <span>{{todo}}</span>
+        </li>
+    </ul>
+    <button @click="addItem">AddItem</button>
+</template>
+<style>
+
+</style>
+
+In vue all apis will not trigger render cycle..
+
+Api which trigger's render cycle - Mutating apis
+
+1.push
+2.pop
+3.shift
+4.unshift
+5.splice
+6.sort
+7.reverse
+...................................................................................
+			 Filtering/Sorting arrays with immutable api
+...................................................................................
+
+What is immutable api?
+
+ when ever we do any changes on object, instead of changing original object changes, which creates a new copy of the object- immutable.
+
+eg:
+  if you add new item into array, the runtime will create new array,instead of mutating original memory.
+
+Array immutable apis:
+ map,filter,reduce - immutable apis
+ or 
+ you can use even spread operator or Object.assign method
+
+<script setup>
+import { ref } from 'vue'
+import TODOS from './mock-data/todos'
+//deep nesting
+const todos = ref(TODOS)
+
+const filter = () => todos.value = todos.value.filter(todo => todo.completed)
+</script>
+<template>
+    <div>
+        <button @click="filter">Filter By Status</button>
+        <h1>Total items : {{todos.length}}</h1>
+        <ul>
+            <li v-for="(todo,index) in todos" :key="todo.id">
+                <span>{{todo.title}}</span>
+            </li>
+        </ul>
+
+    </div>
+</template>
+....................................................................................
+				Object Destructuring
+.....................................................................................
+
+Object Destrucing is es 6 feature, used to extract object properties, to write more readable code.
+
+<script setup>
+// function display(profile) {
+//     console.log(profile.id)
+//     console.log(profile.name)
+//     console.log(profile.address.city)
+// }
+function display(profile) {
+    //destrcturing sytax;
+    const { id, name, address: { city } } = profile
+    console.log(id)
+    console.log(name)
+    console.log(city)
+}
+display({
+    id: 1,
+    name: 'Subramanian',
+    address: {
+        city: 'Coimbatore'
+    }
+})
+</script>
+<template>
+    <h1>Object destructuring</h1>
+</template>
+..................................................................................
+			 Reactivity and Object Destruturing
+...................................................................................
+<script setup>
+import { reactive } from 'vue';
+
+const {id,name,address: {city}} = reactive({
+    id: 1,
+    name: 'Subramanian',
+    address: {
+        city: 'Coimbatore'
+    }
+})
+</script>
+<template>
+    <h1>Object destructuring and Reactivity</h1>
+    <h1>Id {{id}}</h1>
+    <h1>Name{{name}}</h1>
+    <h1>City {{city}}</h1>
+
+</template>
+...................................................................................
+		   Reactivity ,State Mutation,and Object Destructuring
+...................................................................................
+After reactive object destructuring , can we state mutations?
+  Reactivity will be lost once if the object is destructured..
+
+How to convert destructured property into Reactive?
+
+1.toRef - single property
+2.toRefs - multiple property
+<script setup>
+import { reactive, toRef, toRefs } from 'vue';
+// const location = reactive({
+//     lat: 10.5,
+//     lng: 90.5
+// })
+//destructuring and reactivity
+// let { lat, lng } = toRefs(location)
+let { lat, lng } = toRefs(reactive({
+    lat: 10.5,
+    lng: 90.5
+}))
+
+const updateLocation = () => {
+    lat.value = 100.89
+    lng.value = 78.67
+}
+</script>
+<template>
+    <h1>Object destructuring and Reactivity</h1>
+    <h1>Lat : {{lat}} {{lng}}</h1>
+    <button @click="updateLocation">Update Location</button>
+</template>
+....................................................................................
+			 Computed Properties
+...................................................................................
+In the template, if you write any javascript expressions like computing length, total of stock value, finding total price...
+It is not recommended.. using js code, rather what we can use "declarative code" - Computed properties..
+
+<script setup>
+import { computed, reactive } from 'vue';
+
+const author = reactive({
+    name: 'Subramanian',
+    trainings: [
+        'Vue 3 Basic to intermediate',
+        'MicroServices using Spring Cloud'
+    ]
+})
+//computed Property: 
+const isTrainingHandled = computed(() => {
+    return author.trainings.length > 0 ? 'Yes' : 'No'
+})
+
+</script>
+<template>
+    <!-- Immperative way of handling js expressions -->
+    <!-- <h1>{{author.name}}  Has handled Trainings ? {{author.trainings.length > 0 ? 'Yes' : 'No'}}</h1>   -->
+      <h1>{{author.name}}  Has handled Trainings ? {{isTrainingHandled}}</h1>  
+</template>
+.....................................................................................
+			Computed Properties vs Normal Methods
+...................................................................................
+<script setup>
+import { computed, reactive } from 'vue';
+
+const author = reactive({
+    name: 'Subramanian',
+    trainings: [
+        'Vue 3 Basic to intermediate',
+        'MicroServices using Spring Cloud'
+    ]
+})
+//computed Property: 
+// const isTrainingHandled = computed(() => {
+//     return author.trainings.length > 0 ? 'Yes' : 'No'
+// })
+//normal js method
+const isTrainingHandled =() => {
+    return author.trainings.length > 0 ? 'Yes' : 'No'
+}
+
+</script>
+<template>
+    <!-- Immperative way of handling js expressions -->
+    <!-- <h1>{{author.name}}  Has handled Trainings ? {{author.trainings.length > 0 ? 'Yes' : 'No'}}</h1>   -->
+      <h1>{{author.name}}  Has handled Trainings ? {{isTrainingHandled()}}</h1>  
+</template>
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
