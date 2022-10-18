@@ -3589,6 +3589,694 @@ const isTrainingHandled =() => {
     <!-- <h1>{{author.name}}  Has handled Trainings ? {{author.trainings.length > 0 ? 'Yes' : 'No'}}</h1>   -->
       <h1>{{author.name}}  Has handled Trainings ? {{isTrainingHandled()}}</h1>  
 </template>
+.....................................................................................
+	Dynamic Props: The state of one component becomes props to another component
+.....................................................................................
+
+Parent Component
+
+App.vue
+<script setup>
+import { ref } from 'vue';
+import  Counter  from './Counter.vue'
+const counter = ref(10)
+const inc = () => counter.value++
+</script>
+<template>
+    <div>
+        <Counter :counter="counter" :inc="inc" />
+    </div>
+</template>
+<style>
+
+</style>
+
+Child Component
+
+<script setup>
+const props = defineProps({
+    counter: Number,
+    inc:Function
+})
+console.log(props)
+</script>
+<template>
+    <div>
+        <h1>Counter App</h1>
+        <h2>Value {{props.counter}}</h2>
+        <button @click="inc">+</button>
+    </div>
+</template>
+<style>
+
+</style>
+...................................................................................
+			  Component Communications
+...................................................................................
+Component communications enable data sharing.
+
+There are three patterns
+
+1.parent to child
+  via props pattern
+2.child to parent
+    Custom Events -Event emitter pattern
+3.across the components
+   Via Statement libs  - Vuex/Pionon
+
+.....................................................................................
+			  Event Emitter Pattern
+....................................................................................
+
+Child component can emit event along with data, where as parent component can listen for data.
+
+Event emitter syntax:
+
+in the child component
+
+const emitter =  defineEmits(['change','remove','save'])
+<script setup>
+import { ref } from 'vue';
+const emit = defineEmits(['onRequest'])
+const counter = ref(0)
+//listener to emit event
+const onSend = () => {
+    counter.value++
+    emit('onRequest', counter.value)
+}
+</script>
+<template>
+    <h1>Child</h1>
+    <button @click="onSend">Send To Parent</button>
+    <!-- Access emit method inside template refered with $ -->
+    <button @click="$emit('onRequest',counter++)">Send To Parent</button>
+
+</template>
+<style>
+
+</style>
+.....................................................................................
+			   Fall Through Attributes
+	     (Sending HTML Attributes from the parent Component to Child Component)
+.....................................................................................
+
+Attribute inheritance:
+......................
+  A Fall through attribute is an attribute or v-on listeners that is passed to component but it is not explicitly declared in the receiving components(child components) via props or emits.  
+
+Parent:
+App.vue
+<script setup>
+import { ref } from 'vue';
+import MyButton from './MyButton.vue';
+const title = ref('Click')
+</script>
+<template>
+    <!-- sending html attribute as prop : fall through attributes -->
+    <MyButton :title="title"  class="fancy-btn"  :disabled="true"></MyButton>
+</template>
+<style>
+.fancy-btn {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline;
+    font-size: 16px;
+}
+</style>
+
+Child : MyButton.vue
+<script setup>
+const props = defineProps(['title'])
+</script>
+<template>
+    <button>{{props.title}}</button>
+</template>
+<style>
+
+</style>
+....................................................................................
+ How to access the attributes passed from parent in the child compoent
+
+Two places:
+
+1.inside template
+2.inside script block
+
+<script>
+export default {
+    created(){
+        console.log(this.$attrs)
+    }
+}
+</script>
+
+<script setup>
+const props = defineProps(['title'])
+</script>
+<template>
+    <button>{{props.title}}</button>
+     <div>{{$attrs}}</div>
+</template>
+<style>
+
+</style>
+.................................................................................
+		Can we override the dom attributes in the child component
+...................................................................................
+Yes possible except css properties by default
+
+in the style we need add attribute in the style tag scoped
+
+<script>
+export default {
+    created(){
+        console.log(this.$attrs)
+    }
+}
+</script>
+
+<script setup>
+const props = defineProps(['title'])
+</script>
+<template>
+    <button>{{props.title}}</button>
+     <!-- <div>{{$attrs}}</div> -->
+</template>
+<style scoped>
+.fancy-btn {
+    color:red
+}
+</style>
+.....................................................................................
+			Can we add new "class" to the component
+
+yes,We can
+
+When add new classes , the new css classes to be merged as part of old css.
+
+<script>
+export default {
+    created(){
+        console.log(this.$attrs)
+    }
+}
+</script>
+
+<script setup>
+const props = defineProps(['title'])
+</script>
+<template>
+    <button class="large">{{props.title}}</button>
+     <!-- <div>{{$attrs}}</div> -->
+</template>
+<style scoped>
+/* .fancy-btn {
+    color:red
+} */
+.large {
+    color: rgb(228, 7, 7);
+}
+</style>
+
+output:
+<button class="large fancy-btn" data-v-960f1381="">Click</button>
+..................................................................................
+			How to prevent Attribute inheritance
+..................................................................................
+
+yes we can.
+
+<script>
+export default {
+    created(){
+        console.log(this.$attrs)
+    },
+    //inheritAttrs :false - to disable attribute inheritance..
+}
+</script>
+
+<script setup>
+const props = defineProps(['title'])
+</script>
+<template>
+    <button class="large">{{props.title}}</button>
+     <!-- <div>{{$attrs}}</div> -->
+</template>
+<style scoped>
+/* .fancy-btn {
+    color:red
+} */
+.large {
+    color: rgb(228, 7, 7);
+}
+</style>
+............................************.............................................
+			Slots - Component as Prop/DOM element as Prop
+....................................................................................
+
+How to represent component inside template?
+
+<MyComponent>?</MyComponent>
+<MyComponent/>
+
+			
+<MyComponent>
+   You are sending component/html element =>Slot content
+</MyComponent>
+
+<Layout>
+	<Header>
+	    <Menu></Menu>
+        </Header>
+</Layout>
+
+in order to access element/component as prop inside child component vue offers
+built in component "slot" - which is place holder where the elements to be inserted
+
+Parent Component
+<script setup>
+import ChildSlot from './ChildSlot.vue';
+
+</script>
+<template>
+   <ChildSlot>
+      <h1>Slot Content</h1>
+      <h1>Slot Content</h1>
+      <h1>Slot Content</h1>
+      <h1>Slot Content</h1>
+      <h1>Slot Content</h1>
+      <h1>Slot Content</h1>
+      <h1>Slot Content</h1>
+
+   </ChildSlot>
+</template>
+<style>
+
+</style>
+
+
+Child Component
+
+ChildSlot.vue
+<script setup>
+
+</script>
+<template>
+    <div>
+        <h1>Child</h1>
+        <slot></slot>
+    </div>
+</template>
+<style>
+
+</style>
+.....................................................................................
+			  Fallback content
+.....................................................................................
+
+Parent Component
+<script setup>
+import ChildSlot from './ChildSlot.vue';
+
+</script>
+<template>
+    <ChildSlot>
+    </ChildSlot>
+    <ChildSlot>
+        <h3>How are you?</h3>
+    </ChildSlot>
+</template>
+<style>
+
+</style>
+
+
+Child Component
+
+<script setup>
+
+</script>
+<template>
+    <div>
+        <h1>Child</h1>
+        <slot>
+            Fallback Content Goes here
+        </slot>
+    </div>
+</template>
+<style>
+</style>
+...................................XXXXX...........................................
+				Multi Slot
+...................................................................................
+
+We can have more than one Slots
+
+Without slot
+<Layout>
+  <Header/>
+  <Body/>
+  <Footer/>
+</Layout>
+
+<Layout>
+  <Header>
+	<!--Header information -->
+  </Header>
+  <Body>
+	<!--Body information -->
+  </Body>
+  <Footer>
+       <!--Footer information -->
+  </Footer>
+</Layout>
+
+eg:
+Child
+<slot name="header"></slot>
+Parent
+<template v-slot:header></template>
+
+App.vue -Parent:
+<script setup>
+import Layout from './Layout.vue'
+</script>
+<template>
+    <h1>Vue Application</h1>
+    <Layout>
+        <template v-slot:header>
+            <h1>Header</h1>
+        </template>
+        <template v-slot:main>
+            <p>This is body</p>
+        </template>
+        <template v-slot:footer>
+            <h3>Footer</h3>
+        </template>
+    </Layout>
+</template>
+<style>
+
+</style>
+
+Child
+
+Layout.vue
+
+<script setup>
+
+</script>
+<template>
+    <header>
+        <slot name="header">
+            <h1>Default Header</h1>
+        </slot>
+    </header>
+    <main>
+        <slot name="main">
+            <p>This is default Main</p>
+        </slot>
+
+    </main>
+    <footer>
+        <slot name="footer">
+            <h1>Default Footer</h1>
+        </slot>
+
+    </footer>
+</template>
+<style>
+
+</style>
+................................................................................
+			Without V-Slot Directive , we can use #name
+
+      <template v-slot:header>
+            <h1>Header</h1>
+        </template>
+        <template v-slot:main>
+            <p>This is body</p>
+        </template>
+        <template v-slot:footer>
+            <h3>Footer</h3>
+        </template>
+
+
+      <template #header>
+            <h1>Header</h1>
+        </template>
+        <template #main>
+            <p>This is body</p>
+        </template>
+        <template #footer>
+            <h3>Footer</h3>
+        </template>
+
+<script setup>
+import Layout from './Layout.vue'
+</script>
+<template>
+    <h1>Vue Application</h1>
+    <Layout>
+        <!-- <template v-slot:header>
+            <h1>Header</h1>
+        </template>
+        <template v-slot:main>
+            <p>This is body</p>
+        </template>
+        <template v-slot:footer>
+            <h3>Footer</h3>
+        </template> -->
+        <template #header>
+            <h1>Header</h1>
+        </template>
+        <template #main>
+            <p>This is body</p>
+        </template>
+        <template #footer>
+            <h3>Footer</h3>
+        </template>
+    </Layout>
+</template>
+<style>
+
+</style>
+.....................................................................................
+				Default slots
+....................................................................................
+The slot without name is called "default slot"
+
+Child:
+    <main>
+        <!-- <slot name="main">
+            <p>This is default Main</p>
+        </slot> -->
+        <!-- Default Slot : Slot without Name -->
+        <slot>
+            <p>This is default Main</p>
+
+        </slot>
+
+    </main>
+
+Parent:
+ <template #default>
+ </template>
+
+
+eg:
+Parent Component
+<script setup>
+import Layout from './Layout.vue'
+</script>
+<template>
+    <h1>Vue Application</h1>
+    <Layout>
+        <!-- <template v-slot:header>
+            <h1>Header</h1>
+        </template>
+        <template v-slot:main>
+            <p>This is body</p>
+        </template>
+        <template v-slot:footer>
+            <h3>Footer</h3>
+        </template> -->
+        <template #header>
+            <h1>Header</h1>
+        </template>
+        <template #default>
+            <p>This is body</p>
+        </template>
+        <template #footer>
+            <h3>Footer</h3>
+        </template>
+    </Layout>
+</template>
+<style>
+
+</style>
+
+child Component:
+
+<script setup>
+
+</script>
+<template>
+    <header>
+        <slot name="header">
+            <h1>Default Header</h1>
+        </slot>
+    </header>
+    <main>
+        <!-- <slot name="main">
+            <p>This is default Main</p>
+        </slot> -->
+        <!-- Default Slot : Slot without Name -->
+        <slot>
+            <p>This is default Main</p>
+
+        </slot>
+
+    </main>
+    <footer>
+        <slot name="footer">
+            <h1>Default Footer</h1>
+        </slot>
+
+    </footer>
+</template>
+<style>
+
+</style>
+...................................................................................
+				Dynamic Slots
+...................................................................................
+
+The slot name can be dynamic
+
+Static slot:
+
+<template v-slot:header>
+<template #header>
+
+Dynamic Slot:
+
+const header = ref('header')
+
+<template v-slot:[header]>
+<template #[header]>
+
+<script setup>
+import { ref } from 'vue';
+import Layout from './Layout.vue'
+
+const header =ref('header')
+</script>
+<template>
+    <h1>Vue Application</h1>
+    <Layout>
+        <!-- <template v-slot:header>
+            <h1>Header</h1>
+        </template>
+        <template v-slot:main>
+            <p>This is body</p>
+        </template>
+        <template v-slot:footer>
+            <h3>Footer</h3>
+        </template> -->
+        <template #[header]>
+            <h1>Header</h1>
+        </template>
+        <template #default>
+            <p>This is body</p>
+        </template>
+        <template #footer>
+            <h3>Footer</h3>
+        </template>
+    </Layout>
+</template>
+<style>
+</style>
+....................................................................................
+			   Slots Scope
+....................................................................................
+Slots scope enable data accssibility for parent and child components.
+
+There are two slot scope
+1.Render scope
+2.Scoped slots
+
+Render Scope:
+............
+=> The slot content has access to the data scope of the parent component,since it is defined in the parent component.
+=> The slot content does not have access to the child component's data.
+
+	 "As rule of thumb every thing in the template compiled in the parent scope;
+          every thing is compiled in the child template in the child scope"
+
+
+Scoped Slots:
+.............
+   if you want to access data in the parent and child scope.
+
+  "if parent component want to access child  state(data),the child can pass data to   parent via "slot" when rendering it"
+
+  Slot can act as bridge between parent and child for data transfer.
+
+Syntax:
+ <slot :firstName="firstName" :age="age" />
+
+
+eg:
+Child -ScopeSlot.vue
+<script setup>
+import {ref} from 'vue'
+const message = ref('Hello')
+
+</script>
+<template>
+    <!-- send data to parent via slot -->
+    <slot :message="message"></slot>
+</template>
+<style>
+</style>
+
+Parent:
+App.vue
+<script setup>
+import ScopeSlot from './ScopeSlot.vue';
+
+</script>
+<template>
+    <h1>Scoped Slots</h1>
+    <ScopeSlot v-slot="slotprops">
+        {{slotprops.message}}
+    </ScopeSlot>
+</template>
+<style>
+</style>
+**************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
