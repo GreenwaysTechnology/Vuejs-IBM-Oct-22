@@ -1,12 +1,23 @@
 <script setup>
-import ScopeSlot from './ScopeSlot.vue';
+
+// const onSubmit = event => {
+//     if (event) {
+//         event.preventDefault();
+//     }
+// }
+
+const onSubmit = event => {
+  alert("Form has been submitted")
+}
 
 </script>
 <template>
-    <h1>Scoped Slots</h1>
-    <ScopeSlot v-slot="slotprops">
-        {{slotprops.message}}
-    </ScopeSlot>
+    <div>
+        <form action="http://www.google.com">
+            <!-- <button @click="onSubmit">Submit</button> -->
+            <form @submit.prevent="onSubmit">
+            <button>Submit</button>
+        </form>
+        </form>
+    </div>
 </template>
-<style>
-</style>
