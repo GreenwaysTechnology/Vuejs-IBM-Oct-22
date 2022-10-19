@@ -1,23 +1,24 @@
 <script setup>
+import useFetch from './composables/useFetch.js'
+import { useTitle } from '@vueuse/core'
 
-// const onSubmit = event => {
-//     if (event) {
-//         event.preventDefault();
-//     }
-// }
+const url = 'https://jsonplaceholder.typicode.com/todos'
+const title = useTitle('New Titlte', { titleTemplate: '%s My Awesome Website' })
 
-const onSubmit = event => {
-  alert("Form has been submitted")
-}
-
+const { data, error } = useFetch(url)
 </script>
 <template>
-    <div>
-        <form action="http://www.google.com">
-            <!-- <button @click="onSubmit">Submit</button> -->
-            <form @submit.prevent="onSubmit">
-            <button>Submit</button>
-        </form>
-        </form>
+    <div>Todo App</div>
+    <div v-if="error">Opps! Error Encountered</div>
+    <div v-else-if="data">
+        <div v-for="todo of data">
+            <p>{{todo.title}}</p>
+        </div>
+    </div>
+    <div v-else>
+        <h1>Loading...</h1>
     </div>
 </template>
+<style>
+
+</style>

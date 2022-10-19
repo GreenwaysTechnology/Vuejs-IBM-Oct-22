@@ -4842,7 +4842,188 @@ other keyboard keys modifiers
 .shift
 .meta
 .enter
+...................................................................................
+			.....................................................................................
+			Composables(Hooks in React)
+....................................................................................	
 
+Composable is just plain javascript function that separates resuable stateful logic
+(logic which has state).
+
+When we build apps, either server side or client, we need some biz logic has to be reused across the application.
+
+eg:
+  Date formater, String utilities.
+
+Use Case :
+ if we are implementing the mouse tracking functionality inside a component.
+ eg i want to track x and y coordinates in a component , the same feature if you want in another component, you have to repeat that logic again thats where we have concept called composables.
+
+eg:
+<script setup>
+import {onMounted, onUnmounted, ref} from 'vue'
+
+const x = ref(0)
+const y = ref(0)
+
+const update = event => {
+    x.value = event.pageX
+    y.value = event.pageY
+}
+//Life cycle
+onMounted(()=>{
+    window.addEventListener('mousemove',update)
+})
+onUnmounted(()=>{
+    window.removeEventListener('mousemove',update)
+})
+
+</script>
+<template>
+    <h1>
+        X : {{x}} Y:{{y}}
+    </h1>
+</template>
+<style>
+
+</style>
+
+What if i want the same functionality in another component, you have to duplicate the code... "Dont do that" - Composable
+Here, we write logic to get Mouse positions in side app component, what if i want the same logic again inside another component.
+
+Solution is : Composable.
+
+src/composables/mousetracker.js
+import { onMounted, onUnmounted, ref } from 'vue'
+//all composable functions start with "use" convention only / not syntax
+export default function useMouseTracker() {
+    const x = ref(0)
+    const y = ref(0)
+
+    const update = event => {
+        x.value = event.pageX
+        y.value = event.pageY
+    }
+    //Life cycle
+    onMounted(() => {
+        window.addEventListener('mousemove', update)
+    })
+    onUnmounted(() => {
+        window.removeEventListener('mousemove', update)
+    })
+
+    //return values
+    return {
+        x,y
+    }
+
+}
+
+App.vue
+
+<script setup>
+import useMouseTracker from './composables/mousetracker.js'
+const { x, y } = useMouseTracker()
+</script>
+<template>
+    <h1>
+        X : {{x}} Y:{{y}}
+    </h1>
+</template>
+<style>
+
+</style>
+.....................................................................................
+			   Ajax calls/api calls from vue
+....................................................................................
+
+<script setup>
+import { onMounted, ref } from 'vue';
+const data = ref(null)
+const error = ref(null)
+
+function fetchData() {
+    const url = 'https://jsonplaceholder.typicode.com/todos'
+    fetch(url)
+        .then(response => response.json())
+        .then(todos => {
+            data.value = todos
+            console.log(data.value)
+        }).catch(err => {
+            console.log('error')
+            error.value = err
+        })
+}
+onMounted(() => {
+    fetchData()
+})
+</script>
+<template>
+    <div>Todo App</div>
+    <div v-if="error">Opps! Error Encountered</div>
+    <div v-else-if="data">
+        <div v-for="todo of data">
+            <p>{{todo.title}}</p>
+        </div>
+    </div>
+    <div v-else>
+        <h1>Loading...</h1>
+    </div>
+</template>
+<style>
+
+</style>
+...................................................................................
+		  How to isloate the ajax logics using composables
+...................................................................................
+<script setup>
+import useFetch from './composables/useFetch.js'
+const url = 'https://jsonplaceholder.typicode.com/todos'
+const { data, error } = useFetch(url)
+</script>
+<template>
+    <div>Todo App</div>
+    <div v-if="error">Opps! Error Encountered</div>
+    <div v-else-if="data">
+        <div v-for="todo of data">
+            <p>{{todo.title}}</p>
+        </div>
+    </div>
+    <div v-else>
+        <h1>Loading...</h1>
+    </div>
+</template>
+<style>
+
+</style>
+
+Now vue starts using lot of composable apis, which ias every growing....
+https://vueuse.org/
+
+<script setup>
+import useFetch from './composables/useFetch.js'
+import { useTitle } from '@vueuse/core'
+
+const url = 'https://jsonplaceholder.typicode.com/todos'
+const title = useTitle('New Titlte', { titleTemplate: '%s My Awesome Website' })
+
+const { data, error } = useFetch(url)
+</script>
+<template>
+    <div>Todo App</div>
+    <div v-if="error">Opps! Error Encountered</div>
+    <div v-else-if="data">
+        <div v-for="todo of data">
+            <p>{{todo.title}}</p>
+        </div>
+    </div>
+    <div v-else>
+        <h1>Loading...</h1>
+    </div>
+</template>
+<style>
+
+</style>
 
 
 
