@@ -1,24 +1,16 @@
 <script setup>
-import useFetch from './composables/useFetch.js'
-import { useTitle } from '@vueuse/core'
+import { defineAsyncComponent, Suspense } from 'vue';
 
-const url = 'https://jsonplaceholder.typicode.com/todos'
-const title = useTitle('New Titlte', { titleTemplate: '%s My Awesome Website' })
+const HelloWorld = defineAsyncComponent(() => import('./HelloWorld.vue'))
 
-const { data, error } = useFetch(url)
+const message = 'Hello Async component'
 </script>
 <template>
-    <div>Todo App</div>
-    <div v-if="error">Opps! Error Encountered</div>
-    <div v-else-if="data">
-        <div v-for="todo of data">
-            <p>{{todo.title}}</p>
-        </div>
-    </div>
-    <div v-else>
-        <h1>Loading...</h1>
-    </div>
+    <Suspense>
+        <HelloWorld :msg="message" />
+        <!-- This is fallback component when component takes more time to load -->
+        <template #fallback>
+            <h1>Loading...</h1>
+        </template>
+    </Suspense>
 </template>
-<style>
-
-</style>

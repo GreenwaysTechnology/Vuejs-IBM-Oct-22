@@ -5025,16 +5025,676 @@ const { data, error } = useFetch(url)
 
 </style>
 
+.....................................................................
+.....................................................................................
+				Custom Directives
+.....................................................................................
+
+Code Reuse in Vue:
+
+The application code can be reused in vue in various ways.
+
+1.Composables
+   Way to reuse app state logic
+2.Components
+   Way to resue UI 
+3.Directives 
+   Way to resue underlaying dom features
+
+There are different types of directives 
+
+1.built in directives
+   Directives are provided by vue - v-on,v-bind....
+2.custom directives
 
 
+How to create simple custom Directive?
+
+Directive is object, having low level dom features.
+
+Steps:
+
+1.create directive object
+<script setup>
+//first directive
+const vFocus = {
+    //define life cycle methods
+    mounted: (element) => {
+        //we can get dom element here, what ever you want you can do
+        console.log(element)
+        element.focus()
+    }
+}
+</script>
+
+2.attach directive on html element.
+<template>
+    <input v-focus>
+</template>
+
+.....................................................................................
+			 DOM Manipulation using Directives
+
+<script setup>
+const vHighlight = {
+
+    mounted: (element) => {
+        //
+        element.addEventListener('mousemove', evt => {
+             highLight('yellow')
+        })
+        element.addEventListener('mouseleave', evt => {
+            highLight(null)
+        })
+        const highLight = color => {
+            element.style.backgroundColor = color
+        }
+    }
+}
+</script>
+<template>
+    <h1 v-highlight>HighLight Me!</h1>
+</template>
+<style>
+
+</style>
+.....................................................................................
+		    Component/Directive Hooks
+.....................................................................................
+Directive Hooks:
+  Directive hooks are methods which are called in every life cycle of directive
+
+created(element,binding,vnode,prevNode)
+
+beforeMount () - called before the target element is inserted into dom
+
+mounted() -> called before the parent component is updated
+
+beforeUpdate()- called after the parent component and all of its childern have updated
+
+update() -called after beforeUpdate
+
+beforeUnmount() - before removing element
+
+unmounted()  - when component is unmounted
+.....................................................................................
+			 Directives parameters,modifiers,args
+.....................................................................................
+binding object hold all information about directive
 
 
+How to pass parameter to directive?
+
+<input v-bind:value="msg">
+                      |
+		    Parameter				
+  
+import { createApp } from 'vue'
+import App from './App.vue'
+
+createApp(App)
+    .provide('company', 'google')
+    .directive('focus', (element, binding) => {
+        console.log('directive => ', element)
+        element.focus()
+    })
+    .directive('highlight', (element, binding) => {
+      
+        //set inital color:
+        element.style.backgroundColor = binding.value
+        element.addEventListener('mousemove', (evt) => {
+            //element.style.backgroundColor = 'yellow'
+            highLight('yellow')
+        })
+        //remove style
+        element.addEventListener('mouseleave', (evt) => {
+            // element.style.backgroundColor = null
+            highLight(null)
+        })
+        const highLight = (color) => {
+            element.style.backgroundColor = color
+        }
+    })
+    .mount('#app')
+
+.....
+another eg:
+<script setup>
+import { ref } from 'vue'
+const color = ref('green')
+</script>
+<template>
+    <h1 v-highlight.value="color">HighLight</h1>
+    <!-- directive:arg.modifier -->
+    <h1 v-highlight:foo.bar="color">HighLight</h1>
+
+    <p v-demo>this is demo directive -simple</p>
+    <p v-demo:foo>this is demo directive-arg</p>
+    <p v-demo:foo.bar>this is demo directive-modifier</p>
+    <p v-demo:foo.bar="color">this is demo directive</p>
+    <p v-demo:foo.bar="{ color: 'green', label: 'Greetings' }">this is demo 
+    
+    directive</p>
+    <p v-demo:value="color">this is demo directive-arg</p>
+    <p v-demo="color">this is demo directive-arg</p>
+
+</template>
+import { createApp } from 'vue'
+import App from './App.vue'
+import StatusBar from './components/StatusBar.vue'
+
+// import './assets/main.css'
+
+// createApp(App).mount('#app')
+const app = createApp(App)
+//global Component
+app.component('StatusBar', StatusBar)
+//global data 
+app.provide('company', 'google')
+
+//global directives
+app.directive('highlight', (element, binding) => {
+    //console.log('element', element)
+    //console.log('binding', binding)
+
+    //get parameters supplied as part of directive
+    console.log(binding)
+    console.log('value', binding.value)
+
+    element.addEventListener('mousemove', (evt) => {
+        //element.style.backgroundColor = 'yellow'
+        highLight('pink')
+    })
+    //remove style
+    element.addEventListener('mouseleave', (evt) => {
+        // element.style.backgroundColor = null
+        highLight(null)
+    })
+    const highLight = (color) => {
+        element.style.backgroundColor = color
+    }
+    highLight(binding.value)
+
+})
+app.directive('demo', (element, binding) => {
+    console.log('element => ', element)
+    console.log('binding => ', binding)
+})
 
 
+app.mount('#app')
+
+.....................................................................................
+
+import { createApp } from 'vue'
+import App from './App.vue'
+import StatusBar from './components/global/StatusBar.vue'
+// import './assets/main.css'
+// console.log(App)
+// const app = createApp(App)
+// app.component('StatusBar', StatusBar)
+// app.mount('#app')
+
+createApp(App)
+     //key-Component Name,value-Component Reference(Object)
+     .component('StatusBar', StatusBar)
+     .provide('company', 'IBM')
+     .directive('highlight', (element, binding) => {
+          //binding is reference of Binding object which can capture the parameters
+          //passed as part of directive
+          console.log(binding)
+          if(binding.modifiers.bar){
+               element.style.color = 'green'
+          }
+          element.style.backgroundColor = binding.value
+          element.addEventListener('mousemove', (evt) => {
+               //element.style.backgroundColor = 'yellow'
+               highLight('yellow')
+          })
+          //remove style
+          element.addEventListener('mouseleave', (evt) => {
+               // element.style.backgroundColor = null
+               highLight(null)
+          })
+          const highLight = (color) => {
+               element.style.backgroundColor = color
+          }
+     })
+     .mount('#app')
+
+<script setup>
+import {ref} from 'vue'
+const color = ref('blue')
+</script>
+<template>
+    <!-- sending parameters to directive -->
+    <h1 v-highlight.value="color">Highlight</h1>
+    <!-- Directive Modifer : args -->
+    <h1 v-highlight:foo.bar="color">Highlight</h1>
+
+</template>
+<style>
+</style>
+....................................................................................
+			   Plugins
+....................................................................................
+What is plugin?
+
+ Plugins are self contained code that usuallay add app-top level functionality to Vue.
+Most of third party libs are integrated as plugin with vue echo system eg: Vue-router
+Statement management libs like vuex,Pinia.
+
+Plugins are distribtued as npm modules, in order to use plugins, we have to do two things
+
+1.install plugin as npm moudle
+
+ npm install vue-router@4
+
+2.Integrate with Application object
+
+const app =createApp(App)
+
+//directives
+app.directive('demo',{})
+//components
+app.components('component',{})
+
+//plugins
+app.use(myPlugin)
+app.use(router)
+
+app.mount("#app");
+.....................................................................................
+How to write Custom Plugins?
+
+Steps 1:
+src/plugins/myPlugin.js
+//uppercase 
+export const myPlugin = {
+    install(app, options) {
+        //application object referenced in the plugin as first parameter
+        app.config.globalProperties.$uppercase = key => {
+            return key.toUpperCase();
+        }
+    }
+}
+
+Step 2: Register the Plugin in application object.
+
+import { createApp } from 'vue'
+import App from './App.vue'
+import { myPlugin } from './plugins/myplugin'
+
+createApp(App)
+    .use(myPlugin)
+    .mount('#app')
+
+Step 3: 
+Use Plugin functionality inside app
+
+<script setup>
+</script>
+<template>
+  <h1>{{$uppercase('hello,how are you')}}</h1>
+</template>
+.....................................................................................
+.....................................................................................
+			  Template Ref
+....................................................................................
+
+How to access dom element in Angular?
+ Inside component : event object
+ Inside Template  : template reference variable "#"
+ Inside directive : HostElement Object
+
+How to access dom element in React?
+ Inside component : event object
+ Inside jsx : ref keyword - 
 
 
+How to access dom element in Vue?
+ Inside component : event object
+ Inside Template  : ref keyword.
 
+syntax:
+ <input ref="variable">
+
+ref is attribute is used to access dom element or child component instance after it is mounted.
+
+ref ,can be used inside "onMounted" life cycle api.
+
+Use cases:
+1.in order to access dom elements directly
+2.in order to integrate third party libs.
+
+Greeter.vue
+<!-- composition api pattern using setup function -->
+<script setup>
+import { ref } from 'vue';
+
+//declare state variable
+const message = ref('Hello')
+const name = ref('Subramanian')
+function sayHai() {
+    return 'Hai'
+}
+defineExpose({
+    message,name
+})
+</script>
+<template>
+    <h1 class="header">{{ message }} {{ name }}</h1>
+    <h1>{{sayHai()}}</h1>
+</template>
+<style>
+</style>
+........................................................................
+
+
+App.vue
+<script setup>
+import Greeter from './Greeter.vue'
+import { onMounted, ref } from 'vue';
+
+const myinput = ref(null)
+const greeter = ref(null)
+
+onMounted(() => {
+    console.log(myinput)
+    myinput.value.focus()
+    console.log(greeter.value.name)
+})
+</script>
+<template>
+    <input ref="myinput" value="test" />
+    <Greeter ref="greeter"/>
+</template>
+.....................................................................................
+			Async Components and Suspense
+.....................................................................................
+
+.....................................................................................
+				Async components
+.....................................................................................
  
+Components are loaded sync in general.
+
+When you build app, app is collection of components, components are packed as js file.
+i want to separate the components into smallar and smallar bundles, and those bundles are loaded onfly , on demand.
+
+Async components are loaded as a separate bundle, on demand.
+
+There is a funnction called 
+
+defineAsyncComponent(function(){
+    return Promise((resolve,reject)=>{
+	resolve(loadcomponent)
+    })
+})
+
+defineAsyncComponent(function(){
+    import('./components/MyComponent.vue")
+})
+
+eg;
+<script setup>
+import { defineAsyncComponent } from 'vue';
+import Greeter from './components/Greeter.vue';
+
+//load component
+const GreeterAsync = defineAsyncComponent(() => import('./components/Greeter.vue'))
+</script>
+<template>
+    <GreeterAsync/>
+</template>
+<style>
+</style>
+
+What if the component is not loaded? 
+
+Due to some errors , the component is not loaded how to handle such errors.
+
+<script setup>
+import { defineAsyncComponent } from 'vue';
+import Greeter from './components/Greeter.vue';
+import ErrorComponent from './components/ErrorComponent.vue'
+
+//load component
+// const GreeterAsync = defineAsyncComponent(() => import('./components/Greeter.vue'))
+const GreeterAsync = defineAsyncComponent({
+    loader: () => import('./components/Greeter.vue'),
+    loadingComponent: Greeter,
+    errorComponent: ErrorComponent,
+    delay: 5000,
+    timeout: 10000
+})
+</script>
+<template>
+    <GreeterAsync />
+</template>
+<style>
+</style>
+
+....................................................................................
+			How to simulate the component delay loading
+
+....................................................................................
+			Async Components With Suspense
+.................................................................................
+
+Async components are not loaded up front, rather which is loaded as chunk(small bundle), when ever it is necessary.
+
+const component = defineAsyncComponent(()=>{
+   import('./components/MyComponent.vue')
+})
+
+<script setup>
+import { defineAsyncComponent } from 'vue';
+
+const HelloWorld = defineAsyncComponent(() => import('./components/HelloWorld.vue'))
+
+</script>
+<template>
+    <HelloWorld />
+</template>
+
+.........................
+
+HelloWorld.vue
+<script setup>
+defineProps({
+  msg: {
+    type: String,
+    required: true
+  }
+})
+function delay() {
+  return new Promise((resolve, rejec) => {
+    setTimeout(resolve, 10000, 'I delay the process')
+  })
+}
+const output = await delay()
+
+</script>
+
+<template>
+  <div class="greetings">
+    <h1 class="green">{{ msg }} {{output}}</h1>
+    <h3>
+      You’ve successfully created a project with
+      <a target="_blank" href="https://vitejs.dev/">Vite</a> +
+      <a target="_blank" href="https://vuejs.org/">Vue 3</a>.
+    </h3>
+  </div>
+</template>
+
+<style scoped>
+h1 {
+  font-weight: 500;
+  font-size: 2.6rem;
+  top: -10px;
+}
+
+h3 {
+  font-size: 1.2rem;
+}
+
+.greetings h1,
+.greetings h3 {
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+
+  .greetings h1,
+  .greetings h3 {
+    text-align: left;
+  }
+}
+</style>
+...
+
+<script setup>
+import { defineAsyncComponent, Suspense } from 'vue';
+
+const HelloWorld = defineAsyncComponent(() => import('./components/HelloWorld.vue'))
+
+const message = 'Hello Async component'
+</script>
+<template>
+    <Suspense>
+        <HelloWorld :msg="message" />
+        <!-- This is fallback component when component takes more time to load -->
+        <template #fallback>
+            <h1>Loading...</h1>
+        </template>
+    </Suspense>
+</template>
+.....................................................................................
+.....................................................................................
+			         SPA
+...................................................................................
+
+...................................................................................
+			How to build SPA :Routing
+....................................................................................
+
+SPA is type of web application built for browsers, all navagations are done by javascript  , html only.
+
+SPA is called client routing.
+
+SPA core features:
+
+1.all navagation is controlled inside browser only
+2.From the server we get only data via apis as json format
+3.In spa, only we have one physical page called landing page /home page
+4.Name of the landing page would be "index.html"
+5.Rest of application page are called "virtual pages" which are created by js  dynamically we call "components"
+6.navigation is controlled by javascript objects called "location and histroy objects"
+7.Frameworks for routing is built on the top of these objects only.
+8.in order to build routing we need "HTML 5" 
+
+
+Routing can be implemented using plain js,html5,ajax,css3 itself, but in large scale we need framework, Vue supports official "vue router" which is supplied as "plugin"
+
+How to start using router?
+
+for existing application
+
+1.npm install vue-router@4
+
+2.Application configuration
+  app.use(router)
+
+For creating new application.
+
+npm init vue@latest
+
+Vue.js - The Progressive JavaScript Framework
+
+√ Project name: ... vue-spa
+√ Add TypeScript? ... No / Yes
+√ Add JSX Support? ... No / Yes
+√ Add Vue Router for Single Page Application development? ... No / Yes - Yes
+√ Add Pinia for state management? ... No / Yes
+√ Add Vitest for Unit Testing? ... No / Yes
+√ Add Cypress for both Unit and End-to-End testing? ... No / Yes
+√ Add ESLint for code quality? ... No / Yes
+
+Scaffolding project in E:\session\IBM\2022\oct\vuejs-session\vue-spa...
+
+Done. Now run:
+
+  cd vue-spa
+  npm install
+  npm run dev
+
+Web Application url pattern:
+
+1.static url
+ http://www.example.com/products.html / products.pdf
+2.dynamic web url
+ http://www.example.com/products.do /products.jsp | products.aspx | products.php
+3.Web service url - REST Api
+ http://www.example.com/api/products =>json
+4.SPA Web url
+
+
+SPA URL Patterns:
+................
+1.web url - looks like web service url
+   http://www.example.com/hello /products
+2.hash url pattern-  hash bang url pattern
+
+http://www.example.com/index.html#hello | #products
+
+................................................................................
+			 Steps for building spa
+
+1.router configuration:
+router/index.js
+
+import Home from '../components/Home.vue'
+import HelloWorld from '../components/HelloWorld.vue';
+import { createRouter, createWebHistory } from 'vue-router'
+
+
+//route configuration
+const routes = [
+    {
+        path: '/',
+        component: Home
+    },
+    {
+        path: '/hello',
+        component: HelloWorld
+    }
+]
+//create router object
+const router = createRouter({
+    history: createWebHistory(import.meta.env.BASE_URL),
+    routes
+})
+
+export default router;
+
+2.main.js
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
+
+createApp(App)
+    .use(router)
+    .mount('#app')
+
+
+
+
+
+
+
+
+
 
 
 
