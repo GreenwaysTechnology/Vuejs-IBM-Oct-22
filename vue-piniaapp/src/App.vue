@@ -1,13 +1,10 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-// import HelloWorld from './components/HelloWorld.vue'
 </script>
 
 <template>
   <header>
-    <h1>Vue App Routing</h1>
-    <div>
-      <!-- <HelloWorld msg="You did it!" /> -->
+    <div class="wrapper">
       <nav>
         <ul>
           <li>
@@ -17,13 +14,13 @@ import { RouterLink, RouterView } from 'vue-router'
             <RouterLink to="/about">About</RouterLink>
           </li>
           <li>
-            <RouterLink to="/review">Review</RouterLink>
+            <RouterLink to="/counter">Counter</RouterLink>
           </li>
           <li>
-            <RouterLink to="/users">Users</RouterLink>
+            <RouterLink to="/Review">Review</RouterLink>
           </li>
           <li>
-            <RouterLink to="/movies">Movies</RouterLink>
+            <RouterLink to="/todos">Todos</RouterLink>
           </li>
         </ul>
       </nav>
@@ -34,7 +31,5 @@ import { RouterLink, RouterView } from 'vue-router'
 </template>
 
 <style scoped>
-h1 {
-  text-align: center;
-}
+
 </style>
